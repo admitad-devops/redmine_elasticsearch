@@ -153,12 +153,13 @@ module RedmineElasticsearch
             },
             mappings: {
               properties: {
-                type:        { type: 'keyword' },
-                title:       { type: 'text', analyzer: 'default' },
-                description: { type: 'text', analyzer: 'default' },
-                datetime:    { type: 'date' },
-                url:         { type: 'text', index: false },
-                parent_project: { type: 'join', relations: { parent_project: Redmine::Search.available_search_types.map(&:singularize) } },
+                  type:           {type: 'keyword'},
+                  title:          {type: 'text', analyzer: 'default'},
+                  description:    {type: 'text', analyzer: 'default'},
+                  datetime:       {type: 'date'},
+                  url:            {type: 'text', index: false},
+                  fixed_version:  {type: 'keyword'},
+                  parent_project: {type: 'join', relations: {parent_project: Redmine::Search.available_search_types.map(&:singularize)}},
               }
             }
           }
