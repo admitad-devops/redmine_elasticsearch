@@ -22,7 +22,7 @@ module IssueSearch
                                           { term: { author_id: { value: user.id } } },
                                           { terms: { assigned_to_id: user_ids } },
                                         ],
-                  minimum_should_match: 1
+                  # minimum_should_match: 1
                 }
               }
             when 'own'
@@ -33,7 +33,7 @@ module IssueSearch
                                           { term: { author_id: { value: user.id } } },
                                           { terms: { assigned_to_id: user_ids } },
                                         ],
-                  minimum_should_match: 1
+                  # minimum_should_match: 1
                 }
               }
             else

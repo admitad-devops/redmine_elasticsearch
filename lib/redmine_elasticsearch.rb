@@ -17,6 +17,14 @@ module RedmineElasticsearch
     Redmine::Search.available_search_types.map { |type| type2class(type) }
   end
 
+  def klasses2types
+    @_klasses_types ||= Hash[Redmine::Search.available_search_types.collect { |type| [type2class(type), type] } ]
+  end
+
+  def klass2type(klass)
+    klasses2types[klass]
+  end
+
   def apply_patch(patch, *targets)
     targets = Array(targets).flatten
     targets.each do |target|
@@ -63,6 +71,7 @@ end
 
 require_dependency 'redmine_elasticsearch/patches/redmine_search_patch'
 require_dependency 'redmine_elasticsearch/patches/search_controller_patch'
+require_dependency 'redmine_elasticsearch/patches/elasticsearch_multimodel_patch'
 
 ActionDispatch::Callbacks.to_prepare do
   RedmineElasticsearch.apply_patch RedmineElasticsearch::Patches::RedmineSearchPatch, Redmine::Search

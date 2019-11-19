@@ -1,11 +1,12 @@
 # Parent project used for index and query issues, news, projects and etc with parent.
 class ParentProject < Project
   index_name RedmineElasticsearch::INDEX_NAME
+  document_type "parent_project"
 
   class << self
 
-    # Import all projects to 'parent_project' document type.
-    # 'parent_project' is a project tree for all other items.
+    # Import all projects to 'parent' document type.
+    # 'parent' is a project tree for all other items.
     def import(options={}, &block)
       # Batch size for bulk operations
       batch_size = options.fetch(:batch_size, RedmineElasticsearch::BATCH_SIZE_FOR_IMPORT)
@@ -19,10 +20,11 @@ class ParentProject < Project
       find_in_batches(batch_size: batch_size) do |items|
         response = __elasticsearch__.client.bulk(
           index: index_name,
-          type:  document_type,
           body:  items.map do |item|
             data = item.to_indexed_json
-            { index: { _id: item.id, data: data } }
+            data[:type] = document_type
+            data[:parent_project] = {name: 'parent_project'}
+            { index: { _id: "#{document_type}-#{item.id}", data: data } }
           end
         )
         imported += items.length
@@ -58,7 +60,7 @@ class ParentProject < Project
         }
       end
 
-      must_queries << { term: { _type: options[:type] } } if options[:type].present?
+      must_queries << { term: { type: options[:type] } } if options[:type].present?
 
       unless user.admin?
         statement_by_role    = {}
@@ -99,7 +101,8 @@ class ParentProject < Project
               end
             end
           end
-          must_queries << { bool: { should: statement_by_role.values, minimum_should_match: 1 } }
+          # must_queries << { bool: { should: statement_by_role.values, minimum_should_match: 1 } }
+          must_queries << { bool: { should: statement_by_role.values } }
         end
       end
       {

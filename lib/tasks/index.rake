@@ -84,7 +84,7 @@ namespace :redmine_elasticsearch do
     bar = ANSI::ProgressBar.new("#{search_type}", estimated_records)
     bar.flush
     errors = RedmineElasticsearch::IndexerService.reindex(search_type, batch_size: batch_size) do |imported_records|
-      bar.set imported_records
+      bar.set imported_records['items'].length()
     end
     bar.halt
     puts "Done reindex #{search_type}. Errors: #{errors}"

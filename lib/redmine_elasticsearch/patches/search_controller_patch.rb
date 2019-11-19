@@ -138,7 +138,7 @@ module RedmineElasticsearch
         common_must << get_main_query(options, search_fields, search_operator)
 
         document_types = options[:scope].map(&:singularize)
-        common_must << { terms: { _type: document_types } }
+        common_must << { terms: { type: document_types } }
 
         if project_ids
           common_must << {
@@ -175,7 +175,7 @@ module RedmineElasticsearch
               must:                 common_must,
               must_not:             common_must_not,
               should:               common_should,
-              minimum_should_match: 1
+              # minimum_should_match: 1
             }
           },
           sort:  [
@@ -196,7 +196,7 @@ module RedmineElasticsearch
           from: options[:from]
         }.merge payload
 
-        search      = Elasticsearch::Model.search search_options, [], index: RedmineElasticsearch::INDEX_NAME
+        search = Elasticsearch::Model.search search_options, [], index: RedmineElasticsearch::INDEX_NAME
         @query_curl ||= []
         search.results
       end
@@ -229,7 +229,7 @@ module RedmineElasticsearch
                 query:            options[:q],
                 default_operator: search_operator,
                 fields:           search_fields,
-                use_dis_max:      true
+                tie_breaker:      1
               }
             }
           when :match
@@ -238,7 +238,7 @@ module RedmineElasticsearch
                 query:       options[:q],
                 operator:    search_operator,
                 fields:      search_fields,
-                use_dis_max: true
+                tie_breaker: 1
               }
             }
           else
