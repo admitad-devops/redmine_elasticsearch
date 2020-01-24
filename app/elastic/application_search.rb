@@ -54,6 +54,20 @@ module ApplicationSearch
       end
     end
 
-    relation.import
+    options = {}
+    options[:type] = '_doc'
+    options[:transform] = lambda {|model|
+      data = model.to_indexed_json
+      data[:type] = RedmineElasticsearch.klass2type(model.class).singularize
+      parent = data.delete(:_parent)
+      data[:parent_project] = {name: data[:type], parent: "parent_project-#{parent}"}
+      { index: {
+          _id: "#{data[:type]}-#{model.id}",
+          routing: parent,
+          data: data
+      }}
+    }
+
+    relation.import options
   end
 end
