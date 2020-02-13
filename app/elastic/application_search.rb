@@ -38,7 +38,8 @@ module ApplicationSearch
     end
 
     def remove_from_index(id)
-      __elasticsearch__.client.delete index: index_name, type: document_type, id: id, routing: id
+      # __elasticsearch__.client.delete index: index_name, type: document_type, id: id, routing: id
+      __elasticsearch__.client.delete index: index_name, type: '_doc', id: id, routing: id
     end
   end
 
