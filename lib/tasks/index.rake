@@ -66,7 +66,7 @@ namespace :redmine_elasticsearch do
   def reindex_project_tree
     puts "\nCounting projects..."
     estimated_records = ParentProject.count
-    puts "#{estimated_records} will be imported."
+    puts "#{estimated_records} will be imported (batch size #{batch_size})."
     bar = ANSI::ProgressBar.new("Project tree", estimated_records)
     bar.flush
     errors = ParentProject.import batch_size: batch_size do |imported_records|
@@ -80,11 +80,13 @@ namespace :redmine_elasticsearch do
   def reindex_document_type(search_type)
     puts "\nCounting estimated records for #{search_type}..."
     estimated_records = RedmineElasticsearch::IndexerService.count_estimated_records(search_type)
-    puts "#{estimated_records} will be imported."
+    puts "#{estimated_records} will be imported (batch size #{batch_size})."
     bar = ANSI::ProgressBar.new("#{search_type}", estimated_records)
     bar.flush
+    count_imported_records = 0
     errors = RedmineElasticsearch::IndexerService.reindex(search_type, batch_size: batch_size) do |imported_records|
-      bar.set imported_records['items'].length()
+      count_imported_records += imported_records['items'].length()
+      bar.set count_imported_records
     end
     bar.halt
     puts "Done reindex #{search_type}. Errors: #{errors}"
