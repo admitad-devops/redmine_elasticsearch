@@ -80,7 +80,7 @@ class ParentProject < Project
               statement_by_role[role] = {
                 has_parent: {
                   parent_type: 'parent_project',
-                  query:       { ids: { values: projects.collect(&:id) } }
+                  query:       { ids: { values: projects.collect(&:id).collect{|id| "parent_project-#{id}"} } }
                 }
               }
             end

@@ -144,7 +144,7 @@ module RedmineElasticsearch
           common_must << {
             has_parent: {
               parent_type: 'parent_project',
-              query:       { ids: { values: project_ids } }
+              query: { ids: { values: project_ids.collect { |id| "parent_project-#{id}" } } }
             }
           }
         end
